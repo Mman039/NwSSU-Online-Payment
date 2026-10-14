@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#1a3a5c">
+    <meta name="description" content="NwSSU Online Payment System - Pay fees online securely">
+    <title>NwSSU Online Payment System</title>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+    
+    <!-- Our stylesheets -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- LOGIN SCREEN                                                  -->
+    <!-- Supports 3 roles: Student, Administrator, Claiming Staff      -->
+    <!-- ============================================================ -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo-circle">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h1>NwSSU</h1>
+                <p class="login-subtitle">Online Payment System</p>
+                <p class="login-subtitle-small">Northwest Samar State University</p>
+            </div>
+
+            <form id="login-form" class="login-form" action="#" method="post" autocomplete="off">
+                <!-- Role Selection: 3 roles as per SRS -->
+                <div class="form-group">
+                    <label>Select Your Role:</label>
+                    <div class="role-selector">
+                        <label class="role-option">
+                            <input type="radio" name="role" value="student" checked>
+                            <span class="role-card">
+                                <i class="fas fa-user-graduate"></i>
+                                <span>Student</span>
+                            </span>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="admin">
+                            <span class="role-card">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Administrator</span>
+                            </span>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="staff">
+                            <span class="role-card">
+                                <i class="fas fa-user-tie"></i>
+                                <span>Claiming Staff</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ID Input -->
+                <div class="form-group">
+                    <label for="login-id">Student ID / Employee ID</label>
+                    <input type="text" id="login-id" name="login-id" placeholder="Enter your ID" required autocomplete="username">
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+
+                <!-- MFA Simulation (per SRS requirement) -->
+                <div class="form-group">
+                    <label for="login-mfa">Security Code (Simulated MFA)</label>
+                    <input type="text" id="login-mfa" name="login-mfa" placeholder="Enter: 123456" maxlength="6" autocomplete="one-time-code">
+                    <small class="form-hint">Demo: use <code>123456</code> for any account</small>
+                </div>
+
+                <!-- Error message -->
+                <div id="login-error" class="error-message hidden"></div>
+
+                <!-- Login Button -->
+                <button type="submit" id="login-btn" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <!-- Demo credentials -->
+            <div class="demo-credentials">
+                <p><strong>Demo Credentials:</strong></p>
+                <p>🎓 Student: <code>20210001</code> / <code>student123</code></p>
+                <p>🛡️ Admin: <code>ADMIN001</code> / <code>admin123</code></p>
+                <p>👔 Staff: <code>STAFF001</code> / <code>staff123</code></p>
+                <p>🔐 MFA Code: <code>123456</code></p>
+            </div>
+
+            <button id="reset-data-btn" class="btn-reset">
+                <i class="fas fa-redo"></i> Reset Demo Data
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MAIN APPLICATION                                              -->
+    <!-- ============================================================ -->
+    <div id="app-screen" class="screen">
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo-circle">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="sidebar-title">
+                    <h2>NwSSU</h2>
+                    <span id="sidebar-role-label">Payment System</span>
+                </div>
+            </div>
+
+            <nav id="sidebar-nav" class="sidebar-nav"></nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span id="user-name" class="user-name">User Name</span>
+                        <span id="user-role" class="user-role">Role</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title" class="page-title">Dashboard</h1>
+                <div class="header-right">
+                    <span id="current-date" class="current-date"></span>
+                </div>
+            </header>
+
+            <div id="content-area" class="content-area"></div>
+        </main>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- DIGITAL RECEIPT MODAL (with QR Code per SRS)                  -->
+    <!-- ============================================================ -->
+    <div id="receipt-modal" class="modal hidden">
+        <div class="modal-overlay" id="receipt-overlay"></div>
+        <div class="modal-content" id="receipt-content">
+            <div class="receipt-header">
+                <div class="receipt-logo-circle">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h2>Northwest Samar State University</h2>
+                    <p>Official Digital Receipt</p>
+                </div>
+            </div>
+            <div class="receipt-body" id="receipt-body"></div>
+            <!-- QR Code Section -->
+            <div class="receipt-qr-section" id="receipt-qr-section">
+                <img id="receipt-qr-img" alt="Verification QR Code" class="receipt-qr-img">
+                <p class="receipt-qr-hint">Scan to verify this receipt</p>
+            </div>
+            <div class="receipt-footer">
+                <p class="receipt-note">This is a computer-generated receipt. No signature required.</p>
+            </div>
+            <div class="modal-actions no-print">
+                <button id="print-receipt-btn" class="btn btn-primary">
+                    <i class="fas fa-print"></i> Print / Download
+                </button>
+                <button id="close-receipt-btn" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAYMENT PROCESSING MODAL                                      -->
+    <!-- ============================================================ -->
+    <div id="processing-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content processing-content">
+            <div class="spinner"></div>
+            <h3>Processing Payment...</h3>
+            <p>Please wait while we verify your transaction.</p>
+            <p class="processing-hint">Secure payment via PCI DSS compliant gateway</p>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAYMENT METHOD DETAIL MODAL (for specific payment channels)   -->
+    <!-- ============================================================ -->
+    <div id="payment-detail-modal" class="modal hidden">
+        <div class="modal-overlay" id="payment-detail-overlay"></div>
+        <div class="modal-content" id="payment-detail-content">
+            <!-- Filled dynamically based on selected payment method -->
+        </div>
+    </div>
+
+    <!-- Scripts: Order matters! Config first, then services, then main -->
+    <script src="config.js"></script>
+    <script src="services/qr-service.js"></script>
+    <script src="services/export-service.js"></script>
+    <script src="services/payment-service.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
